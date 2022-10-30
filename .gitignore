@@ -4,6 +4,13 @@
 Data/
 Documents/
 Extra/
+psimpoll/
+psimpoll/*.*
 Files_for_workshop_21/
 Files_for_workshop_22/
+Data/*.*
+Documents/*.*
+Extra/*.*
+Files_for_workshop_21/*.*
+Files_for_workshop_22/*.*
 BES.Rproj

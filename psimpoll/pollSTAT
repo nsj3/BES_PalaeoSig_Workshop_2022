@@ -1,0 +1,27 @@
+PATAM18
+Main input file: POLLEN.txt
+Dataset for analyses recalculated as proportions
+24 taxa  50 levels
+
+
+
+Zonation: optimal splitting by information content into 10 zones
+No transformation
+(a) residual variance
+(b) variance with n zones as % of total
+(c) variance reduction (% of total) from n - 1 zones to n zones
+(d) variance reduction (% of n - 1 zones) from n - 1 zones to n zones
+ n    (a)     (b)     (c)       (d)    markers
+  1  44.9977  1.0000  -
+  2  28.7628  0.6392  0.3608*  0.6392  63.750
+  3  23.0875  0.5131  0.1261*  0.8027  63.750 103.100
+  4  20.3759  0.4528  0.0603*  0.8826  61.200 78.750 103.100
+  5  17.8548  0.3968  0.0560*  0.8763  18.500 61.200 78.750 103.100
+  6  15.4317  0.3429  0.0538*  0.8643  18.500 61.200 78.750 88.600 106.400
+  7  13.6445  0.3032  0.0397   0.8842  18.500 61.200 78.750 88.600 103.100 122.100
+  8  12.2122  0.2714  0.0318   0.8950  18.500 61.200 78.750 88.600 99.850 110.050 122.100
+  9  10.8063  0.2402  0.0312   0.8849  18.500 61.200 78.750 88.600 99.850 110.050 122.100 134.700
+ 10   9.8603  0.2191  0.0210   0.9125  18.500 61.200 78.750 88.600 99.850 103.100 110.050 122.100 134.700
+
+10 zones selected: numbers of samples per zone are: 8 17 7 4 5 1 2 3 2 1 
+

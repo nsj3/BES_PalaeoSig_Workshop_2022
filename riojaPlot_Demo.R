@@ -663,3 +663,4 @@ p2 <- ggplot(sc, aes(PC1, PC2, col=Zone)) +
   guides(col=guide_legend(nrow=2))
 
 cowplot::plot_grid(p1, p2, rel_widths=c(3, 1), align="v", axis="tblr")
+

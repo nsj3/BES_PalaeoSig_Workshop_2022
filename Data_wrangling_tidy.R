@@ -8,6 +8,8 @@
 
 options(tidyverse.quiet = TRUE)
 library(tidyverse)
+library(readxl)
+library(riojaPlot)
 
 # import pollen data from Red Mere
 polldata <- read_excel("Woodbridge_et_al_2014_Data.xlsx", sheet="REDMERE")
@@ -249,7 +251,7 @@ ggplot(rich, aes(Age_BP, richness, col=Site)) +
 
 site_info <- read_excel("LCC_info.xlsx", sheet="Site_Info")
 
-rich2 <- allpoll_rich %>%
+rich2 <- rich %>%
   left_join(site_info, by=c("Site"="Site_code"))
 
 # Plot richness by region
@@ -278,9 +280,11 @@ ggplot(rich2, aes(Age_BP, richness, col=Site)) +
 rich3 <- rich2 %>%
   mutate(neg_Age=-Age_BP) 
 
+if (0) {
 rich3 %>%
   group_by(Site, Region) %>%
   summarise(lm(richness ~ neg_Age), .groups="drop") 
+}
 
 RoC <- rich3 %>%
   group_by(Site, Region) %>%
@@ -323,11 +327,10 @@ RoC %>%
 
 # Is relationship significant?
 # Crude test using rank correlation
-library(magrittr)
 
 RoC %>% 
-  left_join(site_info, by=c("Site"="Site_code")) %$% # exposition pipe from package magrittr
-  cor.test(estimate, Latitude, method="spearman")
+  left_join(site_info, by=c("Site"="Site_code")) %>%
+   summarise(broom::tidy(cor.test(estimate, Latitude, method="spearman")))
 
 # How to save multiple diagrams?
 

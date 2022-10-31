@@ -606,3 +606,59 @@ fnames <- list.files("Figures", "*.svg", full.names=TRUE)
 plts <- map(fnames[1:9], function(x) { cowplot::ggdraw() + cowplot::draw_image(x, halign=0, valign=0) } )
 
 cowplot::plot_grid(plotlist=plts)
+
+# Combine diagram and ggplot
+
+types <- aber$names[, -1]
+types$Group <- factor(types$Group, levels=c("Trees", "Shrubs", "Herbs"))
+mx5_names <- names(mx[mx])
+clust <- chclust(dist(sqrt(poll)))
+
+tmpfile <- tempfile(fileext = ".svg")
+svg(tmpfile, width=10, height=6)
+rp1 <- riojaPlot(poll, chron, groups=types, selVars=mx5_names,
+          yvar.name="Age (years BP)",
+          ymin=6290, ymax=14250, yinterval=500,
+          sec.yvar.name="Depth (cm)",
+          plot.sec.axis = TRUE,
+          plot.groups=TRUE,
+          plot.cumul=TRUE,
+          scale.percent=TRUE,
+          plot.top.axis=TRUE,
+          ytks1=seq(6000, 14500, by=500),
+          srt.xlabel=45,
+          xRight=0.8)
+
+zn <- cutree(clust, k=5)
+chron$zone <- cutree(clust, k=5)
+
+zones <- chron %>%
+  group_by(zone) %>%
+  summarise(y = mean(`Age (years BP)`)) %>%
+  mutate(zone=paste("Zone", zone)) %>%
+  select(y, zone)
+  
+addRPZoneNames(rp1, zones, xLeft=0.8, xRight=0.9, cex=0.6)  
+addRPClust(rp1, clust, xLeft=0.9)
+addRPClustZone(rp1, clust, xLeft=rp1$box[1], xRight=0.9, col="red")
+addRPClustZone(rp1, clust, col="red")
+
+dev.off()
+
+p1 <- cowplot::ggdraw() + cowplot::draw_image(tmpfile)
+unlink(tmpfile)
+
+pca <- vegan::rda(sqrt(poll))
+sc <- scores(pca, display="sites") %>%
+  as_tibble()
+sc$Zone <- factor(cutree(clust, k=5))
+
+p2 <- ggplot(sc, aes(PC1, PC2, col=Zone)) +
+  geom_line(col="lightgrey") +
+  geom_point(size=2) +
+  coord_equal() +
+  theme_bw(base_size=8) +
+  theme(legend.position="top") +
+  guides(col=guide_legend(nrow=2))
+
+cowplot::plot_grid(p1, p2, rel_widths=c(3, 1), align="v", axis="tblr")

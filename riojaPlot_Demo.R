@@ -1,4 +1,4 @@
-# remotes::install_github("nsj3/riojaPlot", build_vignettes=TRUE)
+# remotes::install_github("nsj3/riojaPlot", build_vignettes=TRUE, dependencies=TRUE)
 library(riojaPlot)
 options(tidyverse.quiet = TRUE)
 library(tidyverse)

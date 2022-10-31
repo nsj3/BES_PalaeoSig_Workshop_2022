@@ -611,6 +611,7 @@ cowplot::plot_grid(plotlist=plts)
 
 types <- aber$names[, -1]
 types$Group <- factor(types$Group, levels=c("Trees", "Shrubs", "Herbs"))
+mx <- apply(poll, 2, max) > 5
 mx5_names <- names(mx[mx])
 clust <- chclust(dist(sqrt(poll)))
 
@@ -649,7 +650,7 @@ p1 <- cowplot::ggdraw() + cowplot::draw_image(tmpfile)
 unlink(tmpfile)
 
 pca <- vegan::rda(sqrt(poll))
-sc <- scores(pca, display="sites") %>%
+sc <- vegan::scores(pca, display="sites") %>%
   as_tibble()
 sc$Zone <- factor(cutree(clust, k=5))
 

@@ -26,6 +26,8 @@ sp_max <- apply(poll_pc, 2, max)
 #or 
 sp_max <- sapply(poll_pc, max)
 
+sp_max
+
 # Then use the max values as a condition to subset columns
 tmp1 <- poll_pc[, sp_max > 5]
 
@@ -45,6 +47,8 @@ riojaPlot(tmp1, depth_age,
 # Hint: polllong_sqrt contains the % data (and sqrt data).  Start with 
 # this and calculate the max abundance of each taxon and use 
 # this to filter out those < 5%.
+
+polllong_sqrt
 
 tmp2 <- polllong_sqrt %>%
   group_by(VarName) %>%

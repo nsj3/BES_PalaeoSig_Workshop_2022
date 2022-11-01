@@ -1,13 +1,19 @@
-# remotes::install_github("nsj3/riojaPlot", build_vignettes=TRUE, dependencies=TRUE)
+# remotes::install_github("nsj3/riojaPlot", build_vignettes=TRUE, dependencies=TRUE, force=TRUE)
 library(riojaPlot)
 options(tidyverse.quiet = TRUE)
 library(tidyverse)
 library(readxl)
+library(rioja)
+
+# browseVignettes("riojaPlot")
 
 # use built-in data from Abernethy Forest
 # see ?aber for citation
 data(aber)
 names(aber)
+
+head(aber$spec)
+head(aber$ages)
 
 # extract pollen percentages
 poll <- aber$spec
@@ -22,6 +28,9 @@ head(chron)
 
 # plot on depth scale (depth is the first column in chron)
 riojaPlot(poll, chron)
+
+riojaPlot(poll[, sel], chron,
+          scale.percent=TRUE)
 
 # plot as percentage data
 # default is to plot darkgreen silhouettes with black outline
@@ -113,6 +122,7 @@ head(aber$names)
 # character vector or factor of group names
 types <- aber$names[, -1]
 types
+
 riojaPlot(poll2, chron, groups=types,
           yvar.name="Age (years BP)",
           ymin=6000, ymax=14400, yinterval=500,
@@ -143,7 +153,7 @@ riojaPlot(poll2, chron, groups=types,
           scale.percent=TRUE)
 
 # calculate cumulative plot based on whole dataset
-riojaPlot(poll, chron, groups=types, selVars=names(mx5_names),
+riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           yvar.name="Age (years BP)",
           ymin=6000, ymax=14400, yinterval=500,
           sec.yvar.name="Depth (cm)",
@@ -154,7 +164,7 @@ riojaPlot(poll, chron, groups=types, selVars=names(mx5_names),
 
 # rotate and italicise names, add top axis,
 # reduce size of axis labels
-riojaPlot(poll, chron, groups=types, selVars=names(mx5_names),
+riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           yvar.name="Age (years BP)",
           ymin=6000, ymax=14400, yinterval=500,
           sec.yvar.name="Depth (cm)",
@@ -168,7 +178,7 @@ riojaPlot(poll, chron, groups=types, selVars=names(mx5_names),
           cex.axis=0.5)          # reduce font of x-axes
 
 # add dendrogram
-riojaPlot(poll, chron, groups=types, selVars=names(mx5_names),
+riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           yvar.name="Age (years BP)",
           ymin=6000, ymax=14400, yinterval=500,
           sec.yvar.name="Depth (cm)",
@@ -181,7 +191,7 @@ riojaPlot(poll, chron, groups=types, selVars=names(mx5_names),
           do.clust=TRUE,     # perform clustering (default is to sqrt-transform data first)
           plot.clust=TRUE)
 
-riojaPlot(poll, chron, groups=types, selVars=names(mx5_names),
+riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           yvar.name="Age (years BP)",
           ymin=6000, ymax=14400, yinterval=500,
           sec.yvar.name="Depth (cm)",
@@ -217,6 +227,8 @@ riojaPlot(poll, chron, groups=types, selVars=mx5_names,
 pca <- vegan::rda(sqrt(poll)) %>% 
   vegan::scores(display="sites") %>%
   as_tibble()
+
+pca
 
 rp <- riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           yvar.name="Age (years BP)",
@@ -322,11 +334,11 @@ rp2 <- riojaPlot(pca, chron, riojaPlot=rp1,
 zone.y <- c(7000, 9000, 10500, 12000, 13500)
 zone.names <- paste("Zone", 1:5)
 zones <- data.frame(zone.y, zone.names)
+zones
 addRPZoneNames(rp1, zones, xLeft=0.8, xRight=0.9, cex=0.6)  
   
 addRPClust(rp1, clust, xLeft=0.9)
 addRPClustZone(rp1, clust, xLeft=rp1$box[1], xRight=0.9, col="red")
-
 
 data(Ponds)
 # reorder the rows in decreasing TP

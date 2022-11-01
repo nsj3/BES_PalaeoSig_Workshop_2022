@@ -50,6 +50,8 @@ polllong_sqrt <- polllong %>%
          SQRT_PC = sqrt(Percent)) %>%
   ungroup() 
 
+polllong_sqrt
+
 # Group taxa into LCC classes and sum sqrt_percent data over each class
 # Merge the transformed data with the list of taxon codes to link to 
 # the LCC class for each taxon using left_join
@@ -94,6 +96,8 @@ polllong_lcc <- polllong_norm %>%
   select(-c(Norm_SQRT_PC)) %>%
   ungroup() 
 
+polllong_lcc
+
 # Plot the data - here Affinity score vs Age, with LCC2 classes
 ggplot(polllong_lcc, aes(x=Age_BP, y=Affinity, col=LCC_name)) +
   geom_line(col="grey") +
@@ -106,7 +110,7 @@ ggplot(polllong_lcc, aes(x=Age_BP, y=Affinity, col=LCC_name)) +
 
 # But what about analysis that needs the data in wide format e.g. plotting 
 # with rioja, ordination or rate of change analysis?
-# We have a cleaned version of the percentage data (and sqrt data) in polltidy_sqrt
+# We have a cleaned version of the percentage data (and sqrt data) in polllong_sqrt
 # so just convert this to wide format:
 poll_wide <- polllong_sqrt %>% 
   pivot_wider(id_cols=c(Depth, Age_BP), 
@@ -118,7 +122,8 @@ riojaPlot(poll_wide[,-c(1:2)], poll_wide[, 1:2],
           srt.xlabel=45) 
 
 # save Percent data as Excel file
-if (0) {
+if (FALSE) {
+   write.csv(poll_wide, "Red_Mere_Percent.csv")
    openxlsx::write.xlsx(poll_wide, "Red_Mere_Percent.xlsx")
 }
 
@@ -144,6 +149,8 @@ source("Data_wrangling_functions.R")
 allpoll_list <- rio::import_list("Woodbridge_et_al_2014_Data.xlsx")
 
 allpoll_nested <- tibble(Site=names(allpoll_list), polldata=allpoll_list) 
+
+allpoll_nested
 
 allpoll_long <- allpoll_nested %>% 
   mutate(polldata, polldata=map(polldata, ~ fun_long_tidy(.x, non_pollen=non_pollen))) %>%
@@ -250,9 +257,12 @@ ggplot(rich, aes(Age_BP, richness, col=Site)) +
   theme(legend.position="none")
 
 site_info <- read_excel("LCC_info.xlsx", sheet="Site_Info")
+site_info
 
 rich2 <- rich %>%
   left_join(site_info, by=c("Site"="Site_code"))
+
+rich2
 
 # Plot richness by region
 ggplot(rich2, aes(Age_BP, richness, col=Site)) +
@@ -273,7 +283,7 @@ ggplot(rich2, aes(Age_BP, richness, col=Site)) +
 
 # Which trends are significant?
 # To answer this we need to perform separate regressions using lm and 
-# extract the slopes and p-vaues
+# extract the slopes and p-values
 # A job for summarise on grouped data:
 # First we create a new age variable (that )-ve Age_BP) so time runs forward
 
@@ -285,6 +295,8 @@ rich3 %>%
   group_by(Site, Region) %>%
   summarise(lm(richness ~ neg_Age), .groups="drop") 
 }
+
+library(broom)
 
 RoC <- rich3 %>%
   group_by(Site, Region) %>%

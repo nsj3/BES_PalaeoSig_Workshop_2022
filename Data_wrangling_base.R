@@ -13,6 +13,7 @@ library(riojaPlot)
 # 48 levels spanning 700-4296 yr BP.
 
 polldata <- read_excel("Woodbridge_et_al_2014_Data.xlsx", sheet="REDMERE")
+polldata
 
 lcc_lookup <- read_excel("LCC_info.xlsx", sheet="LCC_Lookup")
 lcc_lookup
@@ -33,6 +34,14 @@ polldata <- polldata[, !del]
 # split data into depth/age & species parts
 depth_age <- subset(polldata, select=c(`Depth (cm)`, `Cal. yr. BP`))
 poll_count <- subset(polldata, select=-c(`Depth (cm)`, `Cal. yr. BP`))
+
+# Data in csv format?
+d <- read.csv("Data/Redmere.csv")
+colnames(d)
+d <- read.csv("Data/Redmere.csv", check.names=FALSE)
+colnames(d)
+d <- readr::read_csv("Data/Redmere.csv", show_col_types = FALSE)
+colnames(d)
 
 #rename depth / age columns
 colnames(depth_age) <- c("Depth", "Age_BP")
@@ -82,6 +91,7 @@ riojaPlot::riojaPlot(poll_norm, depth_age,
 
 dominant_class <- apply(poll_norm, 1, which.max)
 poll_norm$lcc_class <- factor(colnames(poll_norm)[dominant_class])
+poll_norm
 
 # Calculate the sum of tree (A = LCC classes 1-3) 
 # and open (C = LCC classes) and  Affinity score (A-C)
@@ -127,8 +137,7 @@ legend("topleft", pch=19, col=1:7, legend=levels(poll_norm$lcc_class))
 
 riojaPlot(poll_pc, depth_age, 
          scale.percent=TRUE,
-         yvar.name="Age_BP", 
-         ymax=3500, ymin=0, ytks1=seq(0, 4000, by=200))
+         yvar.name="Age_BP")
 
 # Use whatever method you want, plot the stratigraphic diagram with taxa
 # less that 5% max abundance omitted
@@ -149,6 +158,8 @@ source("Data_wrangling_functions.R")
 
 sites <- excel_sheets("Woodbridge_et_al_2014_Data.xlsx")
 
+sites
+
 LCC_list <- NULL
 for (i in sites) {
   print(i)
@@ -157,6 +168,8 @@ for (i in sites) {
   tmp <- data.frame(Site_code=i, tmp)
   LCC_list <- rbind(LCC_list, tmp)   
 }
+
+LCC_list
 
 # Create a new variable that classifies each data into a 200 year date range
 cuts <- seq(0, 20000, by=200)

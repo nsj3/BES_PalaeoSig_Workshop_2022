@@ -1,4 +1,6 @@
 # remotes::install_github("nsj3/riojaPlot", build_vignettes=TRUE, dependencies=TRUE, force=TRUE)
+# or
+# install.packages("riojaPlot", repos="https://nsj3.r-universe.dev")
 library(riojaPlot)
 options(tidyverse.quiet = TRUE)
 library(tidyverse)
@@ -21,16 +23,12 @@ head(poll)
 
 # replace species codes with full taxon names
 colnames(poll) <- aber$names$Name 
-head(poll)
 
 chron <- aber$ages
 head(chron)
 
 # plot on depth scale (depth is the first column in chron)
 riojaPlot(poll, chron)
-
-riojaPlot(poll[, sel], chron,
-          scale.percent=TRUE)
 
 # plot as percentage data
 # default is to plot darkgreen silhouettes with black outline
@@ -267,7 +265,7 @@ rp <- riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           do.clust=TRUE,
           plot.clust=TRUE,
           plot.zones="auto", 
-          xRight=0.8)
+          xRight=0.85)
 
 myfun <- function(x, y, i, nm) {
   usr <- par("usr")
@@ -296,7 +294,7 @@ rp1 <- riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           scale.percent=TRUE,
           plot.top.axis=TRUE,
           ytks1=seq(6000, 14500, by=500),
-          xRight=0.7)
+          xRight=0.75)
 
 rp2 <- riojaPlot(pca, chron, riojaPlot=rp1, 
           yvar.name="Age (years BP)",
@@ -568,11 +566,15 @@ riojaPlot(poll, chron, selVars=selTaxa,
           cex.axis=0.5,
           las.axis=2)
 
+
+if (0) {
+  
 # combining multiple plots
+# This might take a while to run!
 
 library(readxl)
-allpoll_list <- rio::import_list("Data/Woodbridge_et_al_2014_Data.xlsx")
-lcc_lookup <- read_excel("Data/LCC_info.xlsx", sheet="LCC_Lookup")
+allpoll_list <- rio::import_list("Woodbridge_et_al_2014_Data.xlsx")
+lcc_lookup <- read_excel("LCC_info.xlsx", sheet="LCC_Lookup")
 
 allpoll_nested <- tibble(Site=names(allpoll_list), polldata=allpoll_list) 
 
@@ -676,3 +678,4 @@ p2 <- ggplot(sc, aes(PC1, PC2, col=Zone)) +
 
 cowplot::plot_grid(p1, p2, rel_widths=c(3, 1), align="v", axis="tblr")
 
+}

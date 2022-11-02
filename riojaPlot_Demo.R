@@ -326,17 +326,61 @@ rp2 <- riojaPlot(pca, chron, riojaPlot=rp1,
           yvar.name="Age (years BP)",
           plot.bar=FALSE,
           col.axis=NA,
-          xRight=0.8,
+          xRight=0.82,
           fun.xback=myfun)
 
 zone.y <- c(7000, 9000, 10500, 12000, 13500)
 zone.names <- paste("Zone", 1:5)
 zones <- data.frame(zone.y, zone.names)
 zones
-addRPZoneNames(rp1, zones, xLeft=0.8, xRight=0.9, cex=0.6)  
+addRPZoneNames(rp1, zones, xLeft=0.82, xRight=0.9, cex=0.6)  
   
 addRPClust(rp1, clust, xLeft=0.9)
 addRPClustZone(rp1, clust, xLeft=rp1$box[1], xRight=0.9, col="red")
+
+# Add a column of lithology using a custom function
+
+lithology <- data.frame(
+  top=   c(300, 325, 375, 400, 420, 440, 464, 510, 535), 
+  bottom=c(325, 375, 400, 420, 440, 464, 510, 535, 550),
+  lithology=c("Peat", "Mud", "NS", "Mud", "Mud2", "SiltyMud", "SiltyMud2", "Mud3", "Silt"),
+  colour=c("burlywood4", "saddlebrown", "NA", "brown4", "brown3", "navajowhite4", 
+           "navajowhite3", "brown4", "lightsteelblue")
+)
+
+myfun2 <- function(x) {
+   fun <- function(x) { rect(0, as.numeric(x[1]), 1, as.numeric(x[2]), col=x[4]) }
+   apply(x, 1, fun)
+}
+
+mx <- apply(poll, 2, max)
+mx5 <- mx[mx>10]
+
+rp <- riojaPlot(poll, chron, selVars=names(mx5), lithology=lithology, 
+          sec.yvar.name="Age (years BP)",
+          sec.ymin=6000, sec.ymax=14000, sec.yinterval=500,
+          yvar.name="Depth (cm)",
+          plot.sec.axis = TRUE,
+          scale.percent=TRUE, 
+          fun.lithology=myfun2)
+
+# lithology boundaries are on depth scale, use approx to convert to age scale:
+
+lith_age <- lithology 
+
+lith_age$top <- approx(chron$`Depth (cm)`, chron$`Age (years BP)`, xout=lithology$top)$y
+lith_age$bottom <- approx(chron$`Depth (cm)`, chron$`Age (years BP)`, xout=lithology$bottom)$y
+
+rp <- riojaPlot(poll, chron, selVars=names(mx5), lithology=lith_age, 
+          yvar.name="Age (years BP)",
+          ymin=6000, ymax=14000, yinterval=500,
+          sec.yvar.name="Depth (cm)",
+          plot.sec.axis = TRUE,
+          scale.percent=TRUE, 
+          fun.lithology=myfun2)
+
+
+# Plot modern dataset with lake names on y-axis
 
 data(Ponds)
 # reorder the rows in decreasing TP

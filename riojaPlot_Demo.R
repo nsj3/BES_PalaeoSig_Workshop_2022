@@ -617,10 +617,11 @@ if (0) {
 # This might take a while to run!
 
 library(readxl)
-allpoll_list <- rio::import_list("Woodbridge_et_al_2014_Data.xlsx")
-lcc_lookup <- read_excel("LCC_info.xlsx", sheet="LCC_Lookup")
+allpoll_list <- rio::import_list("Woodbridge_et_al_2014_Data.xlsx", setclass="tibble")
 
-allpoll_nested <- tibble(Site=names(allpoll_list), polldata=allpoll_list) 
+lcc_lookup <- readxl::read_excel("LCC_info.xlsx", sheet="LCC_Lookup")
+
+allpoll_nested <- tibble::tibble(Site=names(allpoll_list), polldata=allpoll_list) 
 
 types <- lcc_lookup %>% select(VarName, LCC_name)
 types$LCC_name <- factor(types$LCC_name, levels=sort(unique(types$LCC_name))[c(2, 3, 5, 4, 6, 1)])

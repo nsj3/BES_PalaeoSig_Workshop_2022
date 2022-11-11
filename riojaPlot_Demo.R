@@ -1,6 +1,9 @@
-# remotes::install_github("nsj3/riojaPlot", build_vignettes=TRUE, dependencies=TRUE, force=TRUE)
+detach("package:riojaPlot", unload=TRUE)
+
+ remotes::install_github("nsj3/riojaPlot", built_vignettes=TRUE, dependencies=TRUE)
 # or
 # install.packages("riojaPlot", repos="https://nsj3.r-universe.dev")
+
 library(riojaPlot)
 options(tidyverse.quiet = TRUE)
 library(tidyverse)
@@ -52,14 +55,14 @@ riojaPlot(poll, chron,
           plot.line=FALSE, 
           plot.poly=FALSE,
           plot.bar=TRUE,
-          lwd.bar=2,
+          lwd.bar=5,
+          cex.xlabel=0.7,
           col.bar="black")
 
 # plot on an age scale
 riojaPlot(poll, chron,
           yvar.name="Age (years BP)",
-          scale.percent=TRUE,
-          )
+          scale.percent=TRUE)
 
 # fix y-axis
 sapply(chron, range)
@@ -75,7 +78,8 @@ riojaPlot(poll, chron,
           ymin=6000, ymax=14400, yinterval=500,
           sec.yvar.name="Depth (cm)",
           plot.sec.axis = TRUE,
-          scale.percent=TRUE)
+          scale.percent=TRUE,
+          srt.xlabel=45)
 
 # remove rare taxa
 # either remove from original data
@@ -101,9 +105,9 @@ riojaPlot(poll2, chron,
 mx5_names <- names(mx[mx])
 mx5_names
 
-mx5_names <- poll %>% 
-  select(where(~ fun.max(.x, 5))) %>%
-  names()
+# Taxa will be plotted in the order they appear in the 
+# character vector, so this method allows you to manually 
+# select and re-order taxa
 
 riojaPlot(poll, chron, selVars=mx5_names,
           yvar.name="Age (years BP)",
@@ -112,14 +116,18 @@ riojaPlot(poll, chron, selVars=mx5_names,
           plot.sec.axis = TRUE,
           scale.percent=TRUE)
 
-# show groups
+# Plot groups
+# for this we need a df or tibble with 2 cols:
+# col1 = names, col2=groups
+
+# show groups for the aber data
 head(aber$names)
 
 # need to pass a data frame with 2 cols
 # col 1 = variable names spelled exactly as in data
 # character vector or factor of group names
 types <- aber$names[, -1]
-types
+head(types)
 
 riojaPlot(poll2, chron, groups=types,
           yvar.name="Age (years BP)",
@@ -139,7 +147,9 @@ riojaPlot(poll2, chron, groups=types,
           plot.cumul=TRUE,    # turns on cumulative plot
           scale.percent=TRUE)
 
-# reorder groups
+# groups are plotted alphabetically by default
+# to reorder supply the grouping column as a factor, 
+# and specify the order of the levels
 types$Group <- factor(types$Group, levels=c("Trees", "Shrubs", "Herbs"))
 riojaPlot(poll2, chron, groups=types,
           yvar.name="Age (years BP)",
@@ -150,7 +160,11 @@ riojaPlot(poll2, chron, groups=types,
           plot.cumul=TRUE,
           scale.percent=TRUE)
 
-# calculate cumulative plot based on whole dataset
+# cumulative plots are calculated from the data passed to riojaPlot
+# if you have removed rare taxa from the data the cumul plot will 
+# no longer sum to 100%
+# So, pass the whole dataset to riojaPlot and use selVArs to select 
+# taxa for plotting
 riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           yvar.name="Age (years BP)",
           ymin=6000, ymax=14400, yinterval=500,
@@ -160,6 +174,7 @@ riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           plot.cumul=TRUE,
           scale.percent=TRUE)
 
+# Adjust some cosmetics
 # rotate and italicise names, add top axis,
 # reduce size of axis labels
 riojaPlot(poll, chron, groups=types, selVars=mx5_names,
@@ -176,6 +191,8 @@ riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           cex.axis=0.5)          # reduce font of x-axes
 
 # add dendrogram
+# clust.data.trans="sqrt" transforms data to sqrt. This gives Hellinger's 
+# distances with percentage data
 riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           yvar.name="Age (years BP)",
           ymin=6000, ymax=14400, yinterval=500,
@@ -186,7 +203,8 @@ riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           scale.percent=TRUE,
           srt.xlabel=45,
           cex.axis=0.5,
-          do.clust=TRUE,     # perform clustering (default is to sqrt-transform data first)
+          do.clust=TRUE,     # perform clustering
+          clust.data.trans="sqrt", # transform data to sqrt before calculating dissimilarities
           plot.clust=TRUE)
 
 riojaPlot(poll, chron, groups=types, selVars=mx5_names,
@@ -202,10 +220,11 @@ riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           cex.xlabel=0.7,
           cex.axis=0.5,
           do.clust=TRUE,
+          clust.data.trans="sqrt",
           plot.clust=TRUE,
           plot.zones="auto")
 
-# fine tune y-axis scale
+# fine tune y-axis scale by specifying tick-value
 sapply(chron, range)
 riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           yvar.name="Age (years BP)",
@@ -218,15 +237,21 @@ riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           ytks1=seq(6000, 14500, by=500),
           srt.xlabel=45,
           do.clust=TRUE,
+          clust.data.trans="sqrt",
           plot.clust=TRUE,
           plot.zones="auto")
 
 # Add second dataset
+# we do a PCA of the pollen data and plot scores of the first
+# two components
 pca <- vegan::rda(sqrt(poll)) %>% 
   vegan::scores(display="sites") %>%
   as_tibble()
-
 pca
+
+# We set xRight = 0.8 so the main plot takes up 80% of the page width
+# we save the output from riojaPlot and pass this to a second call to 
+# riojaPlot to plot the pca scores
 
 rp <- riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           yvar.name="Age (years BP)",
@@ -241,6 +266,7 @@ rp <- riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           srt.xlabel=45,
           do.clust=TRUE,
           plot.clust=TRUE,
+          clust.data.trans="sqrt",
           plot.zones="auto", 
           xRight=0.8)
 
@@ -249,7 +275,9 @@ riojaPlot(pca, chron, riojaPlot=rp,
           plot.bar=TRUE,
           xGap=0.02)
 
-# Custom plotting function
+# Custom plotting function to show PCA scores as deviations 
+# from zero.  Not a super-useful thing to do but it 
+# illustrates how you can customise all or individual plots
 
 rp <- riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           yvar.name="Age (years BP)",
@@ -263,6 +291,7 @@ rp <- riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           ytks1=seq(6000, 14500, by=500),
           srt.xlabel=45,
           do.clust=TRUE,
+          clust.data.trans="sqrt",
           plot.clust=TRUE,
           plot.zones="auto", 
           xRight=0.85)
@@ -280,10 +309,10 @@ riojaPlot(pca, chron, riojaPlot=rp,
           col.axis=NA,
           fun.xback=myfun)
 
-# put dendrogram on right
+# We can put dendrogram on right by pre-calculating the zonation
+# and adding to the plot
 
 clust <- chclust(dist(sqrt(poll)))
-
 rp1 <- riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           yvar.name="Age (years BP)",
           ymin=6290, ymax=14250, yinterval=500,
@@ -546,6 +575,15 @@ BSi <- read_excel(fpath, sheet="Biogenic silica", skip=2)
 BSi.chron <- BSi %>% select(1)
 BSi <- BSi %>% select("BSi")
 
+fun.gam <- function(x, y, i, nm) {
+  tmp <- data.frame(x=y, y=x)
+  gam <- mgcv::gam(y ~ s(x, k=50), data=tmp)
+  x2 <- predict(gam, type="response")
+  lines(x2, y, col="red", lwd=2)
+}
+
+xlab1 <- expression(Mag.~susc.~(10^{-3}~SI))
+
 rp1 <- riojaPlot(pollen, pollen.chron, groups=types, 
           yinterval = 5000,
           ymin = 0, 
@@ -565,21 +603,15 @@ rp1 <- riojaPlot(pollen, pollen.chron, groups=types,
           cex.yaxis=0.7,
           cex.xlabel=0.8,
           xRight = 0.7,
-          plot.line=FALSE
-          )
-
-fun.gam <- function(x, y, i, nm) {
-  tmp <- data.frame(x=y, y=x)
-  gam <- mgcv::gam(y ~ s(x, k=50), data=tmp)
-  x2 <- predict(gam, type="response")
-  lines(x2, y, col="red", lwd=2)
-}
+          plot.line=FALSE,
+          yTop=0.8  )
 
 rp2 <- riojaPlot(mag, mag.chron[, "Age BP", drop=FALSE], 
            riojaPlot=rp1, xGap = 0.01,
            xRight=0.8, scale.minmax=FALSE, 
            plot.bar=FALSE, plot.line=F, 
-           plot.symb=TRUE, symb.cex=0.3, fun.xfront=fun.gam)
+           plot.symb=TRUE, symb.cex=0.3, fun.xfront=fun.gam,
+           x.names=xlab1)
 rp3 <- riojaPlot(loi, loi.chron[, "Age BP", drop=FALSE], 
            riojaPlot=rp2,
            xRight=0.9, 
@@ -589,10 +621,51 @@ riojaPlot(BSi, BSi.chron[, "Age BP", drop=FALSE],
            riojaPlot=rp3,
            xRight=0.99, 
            scale.minmax=FALSE, plot.bar=FALSE, 
-           plot.line=FALSE, plot.symb=TRUE, symb.cex=0.3, fun.xfront=fun.gam)
+           plot.line=FALSE, plot.symb=TRUE, symb.cex=0.3, fun.xfront=fun.gam,
+          x.names="Biog. silica (wt %)")
 
 
-# changing widths
+# repeat the above using pipes
+
+rp1 <- riojaPlot(pollen, pollen.chron, groups=types, 
+          yinterval = 5000,
+          ymin = 0, 
+          ymax=102000,
+          yvar.name = "Age BP",
+          ylabel = "Age (years BP)",
+          scale.percent=TRUE,
+          plot.groups=TRUE,
+          do.clust = TRUE, 
+          plot.zones = "auto",
+          plot.clust=TRUE,
+          plot.cumul=TRUE,
+          cex.cumul=0.6,
+          srt.xlabel=45,
+          xSpace = 0.01,
+          plot.bar=FALSE,
+          tcl=-0.1,
+          cex.yaxis=0.7,
+          cex.xlabel=0.8,
+          xRight = 0.7,
+          plot.line=FALSE,
+          yTop=0.8  ) |>
+  riojaPlot2(mag, mag.chron[, "Age BP", drop=FALSE], 
+           xGap = 0.01,
+           xRight=0.8, scale.minmax=FALSE, 
+           plot.bar=FALSE, plot.line=F, 
+           plot.symb=TRUE, symb.cex=0.3, fun.xfront=fun.gam,
+           x.names=xlab1) |>
+  riojaPlot2(loi, loi.chron[, "Age BP", drop=FALSE], 
+           xRight=0.9, 
+           scale.minmax=FALSE, plot.bar=F, 
+          plot.line=F, plot.symb=TRUE, symb.cex=0.3, fun.xfront=fun.gam) |>
+  riojaPlot2(BSi, BSi.chron[, "Age BP", drop=FALSE], 
+           xRight=0.99, 
+           scale.minmax=FALSE, plot.bar=FALSE, 
+           plot.line=FALSE, plot.symb=TRUE, symb.cex=0.3, fun.xfront=fun.gam,
+           x.names="Biog. silica (wt %)")
+
+# changing column widths
 
 widths <- rep(1, ncol(poll))
 inc <- rep(10, ncol(poll))
@@ -724,3 +797,5 @@ p2 <- ggplot(sc, aes(PC1, PC2, col=Zone)) +
 cowplot::plot_grid(p1, p2, rel_widths=c(3, 1), align="v", axis="tblr")
 
 }
+
+

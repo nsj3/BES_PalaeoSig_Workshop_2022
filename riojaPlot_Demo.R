@@ -1,6 +1,4 @@
-detach("package:riojaPlot", unload=TRUE)
-
- remotes::install_github("nsj3/riojaPlot", built_vignettes=TRUE, dependencies=TRUE)
+# remotes::install_github("nsj3/riojaPlot", built_vignettes=TRUE, dependencies=TRUE)
 # or
 # install.packages("riojaPlot", repos="https://nsj3.r-universe.dev")
 
@@ -184,11 +182,11 @@ riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           plot.sec.axis = TRUE,
           plot.groups=TRUE,
           plot.cumul=TRUE,
-          names.italicise=TRUE,  # italicise names
+          labels.italicise=TRUE,  # italicise names
           scale.percent=TRUE,
           plot.top.axis=TRUE,    # add an x-axis at top
           srt.xlabel=45,         # rotate names
-          cex.axis=0.5)          # reduce font of x-axes
+          cex.xaxis=0.5)          # reduce font of x-axes
 
 # add dendrogram
 # clust.data.trans="sqrt" transforms data to sqrt. This gives Hellinger's 
@@ -202,7 +200,7 @@ riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           plot.cumul=TRUE,
           scale.percent=TRUE,
           srt.xlabel=45,
-          cex.axis=0.5,
+          cex.xaxis=0.5,
           do.clust=TRUE,     # perform clustering
           clust.data.trans="sqrt", # transform data to sqrt before calculating dissimilarities
           plot.clust=TRUE)
@@ -218,7 +216,7 @@ riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           plot.top.axis=TRUE,
           srt.xlabel=45,
           cex.xlabel=0.7,
-          cex.axis=0.5,
+          cex.xaxis=0.5,
           do.clust=TRUE,
           clust.data.trans="sqrt",
           plot.clust=TRUE,
@@ -296,7 +294,7 @@ rp <- riojaPlot(poll, chron, groups=types, selVars=mx5_names,
           plot.zones="auto", 
           xRight=0.85)
 
-myfun <- function(x, y, i, nm) {
+myfun <- function(x, y, i, nm, style) {
   usr <- par("usr")
   segments(0, usr[3], 0, usr[4], col="lightgrey")
   segments(0, y, x, y, col="lightgrey")
@@ -377,7 +375,7 @@ lithology <- data.frame(
            "navajowhite3", "brown4", "lightsteelblue")
 )
 
-myfun2 <- function(x) {
+myfun2 <- function(x, style) {
    fun <- function(x) { rect(0, as.numeric(x[1]), 1, as.numeric(x[2]), col=x[4]) }
    apply(x, 1, fun)
 }
@@ -439,9 +437,9 @@ riojaPlot(ponds.diat, ponds.TP, selVars=ponds.sel,
           cex.yaxis=0.6,
           wa.order="topleft", 
           fun.xfront=myfun,
-          names.italicise=TRUE,
-          las.axis=2, 
-          cex.axis=0.5)
+          labels.italicise=TRUE,
+          las.xaxis=2, 
+          cex.xaxis=0.5)
 
 ponds.TP <- ponds.TP %>%  mutate(bar.cols=case_when(TP < 100 ~ "green",
                             TP >= 100 & TP < 200 ~ "blue",
@@ -466,9 +464,9 @@ riojaPlot(ponds.diat, ponds.TP, selVars=ponds.sel,
           cex.xlabel=0.6, 
           cex.yaxis=0.6,
           wa.order="bottomleft", 
-          names.italicise=TRUE,
-          las.axis=2, 
-          cex.axis=0.5)
+          labels.italicise=TRUE,
+          las.xaxis=2, 
+          cex.xaxis=0.5)
 
 
 # Different styles for different curves
@@ -519,7 +517,7 @@ rp <- riojaPlot(maule.data, maule.chron, groups=groups,
           ylabPos=2.2,
           symb.cex=0.5,
           ytks1=myticks, 
-          las.axis=2,
+          las.xaxis=2,
           yBottom=0.06
           )
 
@@ -533,7 +531,7 @@ mx <- apply(aber.poll, 2, max)
 #create a logical vector which is TRUE for taxa with max < 5
 sel <- mx < 5
 # define a custom function to plot symbols 
-symb.fun <- function(x, y, i, nm) {
+symb.fun <- function(x, y, i, nm, style) {
    sel <- x > 0
    if (sum(sel) > 0) {
       points(rep(3, sum(sel)), y[sel], cex=0.4, pch=19)
@@ -552,7 +550,7 @@ riojaPlot(aber.poll, aber.chron,
    plot.bar = !sel,
    plot.line=FALSE,
    lwd.bar=0.6,
-   exag=TRUE,
+   plot.exag=TRUE,
    fun.xfront=funlist)
 
 
@@ -575,7 +573,7 @@ BSi <- read_excel(fpath, sheet="Biogenic silica", skip=2)
 BSi.chron <- BSi %>% select(1)
 BSi <- BSi %>% select("BSi")
 
-fun.gam <- function(x, y, i, nm) {
+fun.gam <- function(x, y, i, nm, style) {
   tmp <- data.frame(x=y, y=x)
   gam <- mgcv::gam(y ~ s(x, k=50), data=tmp)
   x2 <- predict(gam, type="response")
@@ -611,7 +609,7 @@ rp2 <- riojaPlot(mag, mag.chron[, "Age BP", drop=FALSE],
            xRight=0.8, scale.minmax=FALSE, 
            plot.bar=FALSE, plot.line=F, 
            plot.symb=TRUE, symb.cex=0.3, fun.xfront=fun.gam,
-           x.names=xlab1)
+           xlabels=xlab1)
 rp3 <- riojaPlot(loi, loi.chron[, "Age BP", drop=FALSE], 
            riojaPlot=rp2,
            xRight=0.9, 
@@ -622,7 +620,7 @@ riojaPlot(BSi, BSi.chron[, "Age BP", drop=FALSE],
            xRight=0.99, 
            scale.minmax=FALSE, plot.bar=FALSE, 
            plot.line=FALSE, plot.symb=TRUE, symb.cex=0.3, fun.xfront=fun.gam,
-          x.names="Biog. silica (wt %)")
+          xlabels="Biog. silica (wt %)")
 
 
 # repeat the above using pipes
@@ -654,7 +652,7 @@ rp1 <- riojaPlot(pollen, pollen.chron, groups=types,
            xRight=0.8, scale.minmax=FALSE, 
            plot.bar=FALSE, plot.line=F, 
            plot.symb=TRUE, symb.cex=0.3, fun.xfront=fun.gam,
-           x.names=xlab1) |>
+           xlabels=xlab1) |>
   riojaPlot2(loi, loi.chron[, "Age BP", drop=FALSE], 
            xRight=0.9, 
            scale.minmax=FALSE, plot.bar=F, 
@@ -663,7 +661,7 @@ rp1 <- riojaPlot(pollen, pollen.chron, groups=types,
            xRight=0.99, 
            scale.minmax=FALSE, plot.bar=FALSE, 
            plot.line=FALSE, plot.symb=TRUE, symb.cex=0.3, fun.xfront=fun.gam,
-           x.names="Biog. silica (wt %)")
+           xlabels="Biog. silica (wt %)")
 
 # changing column widths
 
@@ -680,8 +678,8 @@ riojaPlot(poll, chron, selVars=selTaxa,
           graph.widths=widths,
           min.width.pc=5, 
           x.pc.inc=inc,
-          cex.axis=0.5,
-          las.axis=2)
+          cex.xaxis=0.5,
+          las.xaxis=2)
 
 
 if (0) {
